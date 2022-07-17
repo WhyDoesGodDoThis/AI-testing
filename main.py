@@ -2,6 +2,7 @@ from network import network as n
 from network import snetwork as sn
 from random import randint as r
 from random import random as ra
+import config as c
 
 def npos(num):
 	if bool(r(0,1)):
@@ -33,20 +34,8 @@ def run(gens, pop, inputs, answers):
 	c = carry[0]
 	print(c.score, c.seed, c.hid)
 
-def Main():
-	i = [
-  [-2, -1],  # Alice
-  [25, 6],   # Bob
-  [17, 4],   # Charlie
-  [-15, -6], # Diana
-	]
-	o = [
-  1, # Alice
-  0, # Bob
-  0, # Charlie
-  1, # Diana
-	]
-	run(3000, 10, i, o)
+def Main():	
+	run(3000, 1000, c.i, c.o)
 
 if __name__ == "__main__":
 	user = input(">>>")
@@ -56,4 +45,5 @@ if __name__ == "__main__":
 		user = input("AI data:").split(' ')
 		net = sn(float(user[0]), int(user[1]))
 		while True:
-			net.test([int(zzz) for zzz in input("Test Data:").split(' ')])
+			data = [int(zzz) for zzz in input("Test Data:").split(' ')]
+			net.test([data[0]-160, data[1]-65])
