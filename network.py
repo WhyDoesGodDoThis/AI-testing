@@ -1,31 +1,39 @@
-from neuron import neuron as n
-from random import randint as r
-from random import random as ra
-from random import seed as s
-from my_math import mse
+import my_math as m
+import random as r
 
-def net(seed, hiddens, inputs):
-	s(seed)
-	x = inputs
-	for i in range(hiddens):
-		x = [n(ra(), x) for y in range(r(3,8))]
-	return n(ra(), x)
+class neuron:
+	def __init__(self, inputs):
+		self.weights = [1 for i in range(inputs)]
+		self.bais = 1
+	def calculate(self, inputs):
+		return m.sigmoid(sum([a*b for a, b in zip(inputs, self.weights)]) + self.bais)
+	def mutate(self):
+		self.weights = [a+(m.chance(20)*m.npos(r.random())) for a in self.weights]
+		self.bais = self.bais +(m.chance(20)*m.npos(r.randint(-2,2)))
 
 class network:
-	def __init__(self, seed, h, ans, inps):
-		self.seed = seed
-		self.hid = h
-		self.out = [net(seed, h, i) for i in inps]
-		try:
-			self.out = [sum(x) for x in self.out]
-		except:
-			pass
-		self.score = mse(ans, self.out)
-
-class snetwork:
-	def __init__(self, seed, h):
-		self.seed = seed
-		self.hid = h
-	def test(self, i):
-		self.out = net(self.seed, self.hid, i)
-		print(self.out)
+	def __init__(self, length, inputs):
+		self.len = length
+		self.inps = inputs
+		self.neurons = [[neuron(inputs) for i in range(4)]]
+		self.neurons = self.neurons + [[neuron(4) for i in range(4)] for i in range(length-1)]
+		self.outputs = []
+		self.neurons.append([neuron(4)])
+	def calculate(self, inputs):
+		prev_data = inputs
+		for i in self.neurons:
+			prev_data = [a.calculate(prev_data) for a in i]
+		self.outputs.append(prev_data[-1])
+		return self.outputs[-1]
+	def mutate(self, nmc):
+		for a in self.neurons:
+			for b in a:
+				if bool(m.chance(nmc)):
+					b.mutate()
+	def copy(self):
+		net = network(self.len, self.inps)
+		net.neurons = self.neurons
+		net.outputs = self.outputs
+		return net
+	def score(self, data_right):
+		return m.mse(self.outputs, data_right)
